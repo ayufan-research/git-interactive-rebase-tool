@@ -9,11 +9,16 @@ jobs:
     strategy:
       matrix:
         version: [ '14.04', '16.04' ]
+        docker_arch: [amd64, arm32v7, arm64v8]
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     container:
-      image: 'docker://ubuntu:${{ matrix.version }}'
+      image: 'docker://${{ matrix.docker_arch }}/ubuntu:${{ matrix.version }}'
     steps:
+      - name: Set up container
+        run: |
+          apt-get update
+          apt-get install -y docker.io
       - name: "Get Tag Name"
         id: ref
         shell: bash
@@ -36,7 +41,7 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
           TZ: "America/St_Johns"
       - name: "Build Deb"
-        run: $HOME/.cargo/bin/cargo +stable deb --output "target/debian/git-interactive-rebase-tool-${{ steps.ref.outputs.name }}-ubuntu-${{ matrix.version }}_amd64.deb"
+        run: $HOME/.cargo/bin/cargo +stable deb --output "target/debian/git-interactive-rebase-tool-${{ steps.ref.outputs.name }}-ubuntu-${{ matrix.version }}_$(dpkg --print-architecture).deb"
       - name: "Upload Release"
         uses: softprops/action-gh-release@v1
         with:
@@ -48,11 +53,16 @@ jobs:
     strategy:
       matrix:
         version: [ '18.04', '20.04', '22.04', '22.10', '23.04' ]
+        docker_arch: [amd64, arm32v7, arm64v8]
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     container:
-      image: 'docker://ubuntu:${{ matrix.version }}'
+      image: 'docker://${{ matrix.docker_arch }}/ubuntu:${{ matrix.version }}'
     steps:
+      - name: Set up container
+        run: |
+          apt-get update
+          apt-get install -y docker.io
       - name: "Get Tag Name"
         id: ref
         shell: bash
@@ -76,7 +86,7 @@ jobs:
         with:
           crate: cargo-deb
       - name: "Build Deb"
-        run: $HOME/.cargo/bin/cargo +stable deb --output "target/debian/git-interactive-rebase-tool-${{ steps.ref.outputs.name }}-ubuntu-${{ matrix.version }}_amd64.deb"
+        run: $HOME/.cargo/bin/cargo +stable deb --output "target/debian/git-interactive-rebase-tool-${{ steps.ref.outputs.name }}-ubuntu-${{ matrix.version }}_$(dpkg --print-architecture).deb"
       - name: "Upload Release"
         uses: softprops/action-gh-release@v1
         with:
@@ -89,11 +99,16 @@ jobs:
     strategy:
       matrix:
         version: [ '10', '11', '12', 'sid' ]
+        docker_arch: [amd64, arm32v7, arm64v8]
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     container:
-      image: 'docker://debian:${{ matrix.version }}-slim'
+      image: 'docker://${{ matrix.docker_arch }}/debian:${{ matrix.version }}-slim'
     steps:
+      - name: Set up container
+        run: |
+          apt-get update
+          apt-get install -y docker.io
       - name: "Get Tag Name"
         id: ref
         shell: bash
@@ -117,7 +132,7 @@ jobs:
         with:
           crate: cargo-deb
       - name: "Build Deb"
-        run: $HOME/.cargo/bin/cargo +stable deb --output "target/debian/git-interactive-rebase-tool-${{ steps.ref.outputs.name }}-debian-${{ matrix.version }}_amd64.deb"
+        run: $HOME/.cargo/bin/cargo +stable deb --output "target/debian/git-interactive-rebase-tool-${{ steps.ref.outputs.name }}-debian-${{ matrix.version }}_$(dpkg --print-architecture).deb"
       - name: "Upload Release"
         uses: softprops/action-gh-release@v1
         with:
@@ -144,7 +159,7 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
